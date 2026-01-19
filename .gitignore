@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.DS_Store
+.vscode
+
+# Virtual environments
+.venv
+.env
+pyproject.toml
+uv.lock
+
+# Other
+.python-version
+GEMINI.md
+docs/template_design_report.md

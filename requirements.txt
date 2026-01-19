@@ -1,0 +1,15 @@
+### IMPORTANT
+python<=3.11
+# Core Dependencies (For Running)
+mediapipe>=0.10.31
+numpy<2.0.0
+onnxruntime>=1.23.2
+opencv-python>=4.11.0.86
+protobuf>=3.20.3
+python-dotenv>=1.2.1
+
+# Dev Dependencies (For Training & Development)
+onnx>=1.17.0
+pandas>=2.3.3
+scikit-learn>=1.8.0
+torch==2.2.1
