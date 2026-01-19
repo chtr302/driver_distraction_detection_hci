@@ -1,4 +1,4 @@
-# WakeGuard
+# Driver Distraction Detection
 Intelligent Driver Drowsiness & Distraction Detection System.
 
 ## Project Overview
@@ -29,14 +29,13 @@ WakeGuard is an embedded system designed to detect driver drowsiness and distrac
 ## Quick Start
 
 ### 1. Prerequisites
-- Install `uv` (Fast Python package manager).
 - Clone this repository.
 
 ### 2. Installation
 Initialize the environment and install dependencies:
 
 ```bash
-uv sync
+pip install requirements.txt
 ```
 
 ### 3. Setup Models
