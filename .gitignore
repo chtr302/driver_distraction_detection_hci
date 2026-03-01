@@ -15,6 +15,7 @@ pyproject.toml
 uv.lock
 
 # Other
+data
 .python-version
 GEMINI.md
 docs/template_design_report.md

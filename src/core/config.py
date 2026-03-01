@@ -1,0 +1,43 @@
+from pathlib import Path
+
+# --- DIRECTORIES ---
+CORE_DIR = Path(__file__).parent.resolve()
+SRC_DIR = CORE_DIR.parent
+PROJECT_ROOT = SRC_DIR.parent
+MODELS_DIR = SRC_DIR / "models"
+
+# --- MODELS ---
+FACE_LANDMARKER_PATH = MODELS_DIR / "face_landmarker.task"
+DEFAULT_MODEL_PATH = MODELS_DIR / "wakeguard_mlp.onnx"
+LATEST_MODEL_INFO = MODELS_DIR / "latest_model.txt"
+
+# --- CAMERA ---
+CAMERA_INDEX = 0
+FRAME_WIDTH = 640
+FRAME_HEIGHT = 480
+
+# --- LANDMARK GROUPS ---
+LEFT_EYE = [33, 160, 158, 133, 153, 144]
+RIGHT_EYE = [362, 385, 387, 263, 373, 380]
+MOUTH_INNER = [78, 191, 80, 81, 82, 13, 312, 311]
+ALL_POINTS = LEFT_EYE + RIGHT_EYE + MOUTH_INNER
+
+# --- THRESHOLDS ---
+YAW_THRESHOLD = 20
+PITCH_THRESHOLD = 20
+CALIBRATION_SECONDS = 3.0
+
+# --- WATER TANK ALERT LOGIC ---
+MAX_SCORE = 150
+THRESHOLD_LV1 = 50   # Warning (Yellow)
+THRESHOLD_LV2 = 100  # Critical (Red + Buzzer)
+
+SCORE_INCREMENT_MODEL = 5 
+SCORE_INCREMENT_POSE = 3  
+SCORE_DECAY = 2           
+
+# --- RASPBERRY PI GPIO CONFIG (BCM MODE) ---
+GPIO_LED_YELLOW = 17  # Pin 11 (Physical)
+GPIO_LED_RED = 27     # Pin 13 (Physical)
+GPIO_BUZZER = 22      # Pin 15 (Physical)
+GPIO_VIBRATION = 23   # Pin 16 (Physical) - Rung (Option)
