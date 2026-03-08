@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WakeGuard - Driver Monitoring System</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
+            background:#2B2B2B;
+            color:#FFFFFF;
+            min-height:100vh;
+            padding:40px 20px;
+            line-height:1.6;
+            letter-spacing:-0.01em;
+        }
+        .container { max-width:1400px; margin:0 auto; }
+
+        header {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:40px;
+            padding-bottom:20px;
+            border-bottom:1px solid rgba(179,179,179,0.15);
+        }
+        .header-left { text-align:left; }
+        h1 {
+            font-size:2em;
+            font-weight:300;
+            letter-spacing:-0.03em;
+            margin-bottom:8px;
+            color:#FFFFFF;
+        }
+        .subtitle {
+            color:#D4D4D4;
+            font-size:0.95em;
+            font-weight:400;
+            letter-spacing:0.02em;
+        }
+
+        /* PC / Mobile auto + nút block */
+        .mode-switch {
+            display:flex;
+            align-items:center;
+            gap:6px;
+            font-size:0.75rem;
+        }
+        .mode-label {
+            color:#B3B3B3;
+        }
+        .mode-btn {
+            border-radius:999px;
+            border:1px solid rgba(179,179,179,0.4);
+            background:transparent;
+            color:#6b7280;
+            padding:4px 10px;
+            font-size:0.75rem;
+            cursor:not-allowed;
+            opacity:0.5;
+        }
+        .mode-btn.active {
+            background:rgba(255,255,255,0.08);
+            color:#ffffff;
+            border-color:#ffffff;
+            opacity:1;
+        }
+
+        .dashboard {
+            display:grid;
+            grid-template-columns:420px 1fr;
+            gap:32px;
+            margin-bottom:20px;
+        }
+
+        .card {
+            background:rgba(255,255,255,0.02);
+            border:1px solid rgba(179,179,179,0.1);
+            padding:24px 28px;
+            transition:border-color 0.2s ease;
+        }
+        .card:hover {
+            border-color:rgba(179,179,179,0.2);
+        }
+        .card h2 {
+            font-size:0.75em;
+            font-weight:500;
+            letter-spacing:0.15em;
+            text-transform:uppercase;
+            color:#B3B3B3;
+            margin-bottom:20px;
+        }
+
+        .video-container {
+            position:relative;
+            background:#000000;
+            border:1px solid rgba(179,179,179,0.1);
+        }
+        .video-container img {
+            width:100%;
+            display:block;
+        }
+        .status-badge {
+            position:absolute;
+            top:16px;
+            right:16px;
+            padding:6px 14px;
+            font-weight:500;
+            font-size:0.75em;
+            letter-spacing:0.1em;
+            background:rgba(43,43,43,0.9);
+            border:1px solid;
+            transition:all 0.2s ease;
+        }
+        .status-badge.safe {
+            color:#FFFFFF;
+            border-color:#FFFFFF;
+        }
+        .status-badge.warning {
+            color:#D4D4D4;
+            border-color:#D4D4D4;
+        }
+        .status-badge.critical {
+            color:#FFFFFF;
+            border-color:#FFFFFF;
+            background:rgba(255,255,255,0.1);
+        }
+
+        .stat-grid {
+            display:grid;
+            grid-template-columns:repeat(2,1fr);
+            gap:18px;
+            margin-bottom:24px;
+        }
+        .stat-item {
+            padding:16px 0;
+            border-bottom:1px solid rgba(179,179,179,0.1);
+        }
+        .stat-label {
+            color:#B3B3B3;
+            font-size:0.7em;
+            letter-spacing:0.1em;
+            text-transform:uppercase;
+            margin-bottom:6px;
+            font-weight:500;
+        }
+        .stat-value {
+            font-size:1.7em;
+            font-weight:300;
+            letter-spacing:-0.02em;
+            color:#FFFFFF;
+        }
+
+        .progress-bar {
+            width:100%;
+            height:2px;
+            background:rgba(179,179,179,0.2);
+            margin:18px 0 4px 0;
+            position:relative;
+        }
+        .progress-fill {
+            height:100%;
+            background:#FFFFFF;
+            transition:width 0.3s ease;
+            position:relative;
+        }
+        .progress-fill::after {
+            content:attr(data-percent);
+            position:absolute;
+            right:0;
+            top:-20px;
+            font-size:0.75em;
+            color:#D4D4D4;
+            font-weight:500;
+        }
+        .progress-hint {
+            font-size:0.75em;
+            color:#A3A3A3;
+        }
+
+        .info-section {
+            margin-top:18px;
+            padding-top:14px;
+            border-top:1px solid rgba(179,179,179,0.1);
+        }
+        .info-row {
+            display:flex;
+            justify-content:space-between;
+            padding:8px 0;
+            font-size:0.85em;
+        }
+        .info-label {
+            color:#B3B3B3;
+            font-weight:400;
+        }
+        .info-value {
+            color:#FFFFFF;
+            font-weight:500;
+        }
+
+        .controls {
+            margin-top:20px;
+            display:flex;
+            flex-direction:column;
+            gap:10px;
+        }
+        .btn-row {
+            display:flex;
+            gap:10px;
+        }
+        .btn {
+            flex:1;
+            padding:12px 18px;
+            border:1px solid rgba(179,179,179,0.3);
+            background:transparent;
+            font-size:0.8em;
+            font-weight:500;
+            letter-spacing:0.05em;
+            text-transform:uppercase;
+            cursor:pointer;
+            transition:all 0.2s ease;
+            color:#FFFFFF;
+        }
+        .btn:hover {
+            background:rgba(255,255,255,0.05);
+            border-color:#FFFFFF;
+        }
+        .btn:active {
+            background:rgba(255,255,255,0.1);
+        }
+        .btn:disabled {
+            opacity:0.3;
+            cursor:not-allowed;
+        }
+
+        .hint-text {
+            font-size:0.8em;
+            color:#A3A3A3;
+            margin-top:2px;
+        }
+
+        .loading {
+            display:inline-block;
+            width:12px;
+            height:12px;
+            border:2px solid rgba(255,255,255,0.2);
+            border-top-color:#FFFFFF;
+            border-radius:50%;
+            animation:spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        .section-title {
+            font-size:0.7em;
+            font-weight:500;
+            letter-spacing:0.1em;
+            text-transform:uppercase;
+            color:#B3B3B3;
+            margin-bottom:10px;
+        }
+
+        /* Nút Calibrate: viền xanh nhạt + vòng chạy 3s */
+        .btn-cali-base {
+            position: relative;
+            overflow: hidden;
+            border-color: rgba(56, 189, 248, 0.6); /* xanh nhạt */
+        }
+
+        .cali-ring {
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background:
+              conic-gradient(
+                rgba(56,189,248,1) 0deg,
+                rgba(56,189,248,1) 0deg,
+                transparent 0deg
+              );
+            mask:
+              linear-gradient(#000 0 0) content-box,
+              linear-gradient(#000 0 0);
+            -webkit-mask:
+              linear-gradient(#000 0 0) content-box,
+              linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            padding: 2px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease-out;
+        }
+
+        .btn-calibrating .cali-ring {
+            opacity: 1;
+            animation: caliRingSpin 3s linear forwards;
+        }
+
+        @keyframes caliRingSpin {
+            from {
+                background:
+                  conic-gradient(
+                    rgba(56,189,248,1) 0deg,
+                    transparent 0deg
+                  );
+            }
+            to {
+                background:
+                  conic-gradient(
+                    rgba(56,189,248,1) 360deg,
+                    transparent 360deg
+                  );
+            }
+        }
+
+        @media (max-width:1100px) {
+            .dashboard {
+                grid-template-columns:1fr;
+                gap:24px;
+            }
+        }
+        @media (max-width:768px) {
+            body { padding:20px; }
+            header {
+                flex-direction:column;
+                align-items:flex-start;
+                gap:12px;
+            }
+            h1 { font-size:1.6em; }
+            .card { padding:20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>WakeGuard</h1>
+                <p class="subtitle">Driver Distraction Detection System</p>
+            </div>
+            <div class="mode-switch">
+                <span class="mode-label">Layout (Auto):</span>
+                <button class="mode-btn" id="btnLayoutPC" disabled>PC</button>
+                <button class="mode-btn" id="btnLayoutMobile" disabled>Mobile</button>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <!-- Left Panel -->
+            <div>
+                <div class="card">
+                    <h2>System Status</h2>
+
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Status</div>
+                            <div class="stat-value" id="status-text">SAFE</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Risk Score</div>
+                            <div class="stat-value" id="risk-score">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Uptime</div>
+                            <div class="stat-value" id="uptime">0s</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Face Detected</div>
+                            <div class="stat-value" id="face-status">NO</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Risk Level</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="risk-progress" style="width:0%" data-percent="0%"></div>
+                    </div>
+                    <div class="progress-hint">
+                        Mức nguy cơ tổng hợp từ độ tập trung và hướng nhìn (0–100%).
+                    </div>
+
+                    <div class="info-section">
+                        <div class="info-row">
+                            <span class="info-label">Head Pose</span>
+                            <span class="info-value" id="head-pose">UNKNOWN</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">AI Detection</span>
+                            <span class="info-value" id="ai-detection">Normal</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Calibrated</span>
+                            <span class="info-value" id="calibrated-status">No</span>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="btn-row">
+                            <button class="btn btn-cali-base" id="btnCalibrate" onclick="handleCalibrate()">
+                                <span class="cali-ring" id="caliRing"></span>
+                                <span id="calibrate-text">Calibrate (3s)</span>
+                            </button>
+                            <button class="btn" id="mute-btn" onclick="toggleMute()">
+                                <span id="mute-text">Sound On</span>
+                            </button>
+                        </div>
+                        <div class="hint-text" id="calibrate-hint">
+                            Tip: Nhấn Calibrate và nhìn thẳng vào camera ~3 giây, tránh quay đầu hoặc cúi/ngửa.
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <div class="section-title">Statistics</div>
+                        <div class="info-row">
+                            <span class="info-label">Warnings</span>
+                            <span class="info-value" id="warning-count">0</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Critical Alerts</span>
+                            <span class="info-value" id="critical-count">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Video Feed -->
+            <div class="card">
+                <h2>Live Camera Feed</h2>
+                <div class="video-container">
+                    <img src="/video_feed" alt="Live Feed">
+                    <div class="status-badge safe" id="status-badge">SAFE</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isMuted = false;
+
+        function applyAutoLayoutBadge() {
+            const btnPC = document.getElementById('btnLayoutPC');
+            const btnMobile = document.getElementById('btnLayoutMobile');
+            if (window.innerWidth <= 768) {
+                btnPC.classList.remove('active');
+                btnMobile.classList.add('active');
+            } else {
+                btnPC.classList.add('active');
+                btnMobile.classList.remove('active');
+            }
+        }
+        window.addEventListener('resize', applyAutoLayoutBadge);
+        applyAutoLayoutBadge();
+
+        setInterval(updateStatus, 500);
+
+        async function updateStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+
+                const statusText = data.status || 'SAFE';
+                const statusBadge = document.getElementById('status-badge');
+                const statusTextEl = document.getElementById('status-text');
+
+                statusTextEl.textContent = statusText;
+                statusBadge.className = 'status-badge ' + statusText.toLowerCase();
+                statusBadge.textContent = statusText;
+
+                const score = Math.round(data.score || 0);
+                const maxScore = 150;
+                const percent = Math.min(100, Math.round((score / maxScore) * 100));
+
+                document.getElementById('risk-score').textContent = score;
+                const progressFill = document.getElementById('risk-progress');
+                progressFill.style.width = percent + '%';
+                progressFill.setAttribute('data-percent', percent + '%');
+
+                const uptime = data.uptime || 0;
+                const hours = Math.floor(uptime / 3600);
+                const minutes = Math.floor((uptime % 3600) / 60);
+                const seconds = uptime % 60;
+                let uptimeStr = '';
+                if (hours > 0) uptimeStr += hours + 'h ';
+                if (minutes > 0) uptimeStr += minutes + 'm ';
+                uptimeStr += seconds + 's';
+                document.getElementById('uptime').textContent = uptimeStr;
+
+                document.getElementById('face-status').textContent = data.face_detected ? 'YES' : 'NO';
+
+                const headPose = data.head_pose || {};
+                document.getElementById('head-pose').textContent = headPose.state || 'UNKNOWN';
+
+                document.getElementById('ai-detection').textContent = data.is_distracted ? 'Distracted' : 'Focused';
+
+                document.getElementById('calibrated-status').textContent = data.calibrated ? 'Yes' : 'No';
+
+                const alerts = data.alerts_count || {};
+                document.getElementById('warning-count').textContent = alerts.warning || 0;
+                document.getElementById('critical-count').textContent = alerts.critical || 0;
+
+                isMuted = data.muted || false;
+                updateMuteButton();
+
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        async function handleCalibrate() {
+            const btn = document.getElementById('btnCalibrate');
+            const label = document.getElementById('calibrate-text');
+            const hint = document.getElementById('calibrate-hint');
+
+            if (btn.disabled) return;
+            btn.disabled = true;
+
+            let countdown = 3;
+            const baseLabel = 'Calibrate';
+
+            // bật vòng viền chạy 3s
+            btn.classList.add('btn-calibrating');
+
+            try {
+                await fetch('/api/calibrate', { method:'POST' });
+            } catch (e) {
+                console.error('Error calibrating:', e);
+            }
+
+            hint.textContent = 'Đang căn chỉnh, vui lòng nhìn thẳng và giữ nguyên tư thế trong 3 giây...';
+
+            function updateLabel() {
+                label.textContent = baseLabel + ' (' + countdown + 's)';
+            }
+            updateLabel();
+
+            const timer = setInterval(() => {
+                countdown -= 1;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    label.textContent = baseLabel + ' (3s)';
+                    hint.textContent = 'Đã căn chỉnh xong. Quan sát STATUS và thanh màu để theo dõi mức độ nguy cơ.';
+                    btn.classList.remove('btn-calibrating');
+                } else {
+                    updateLabel();
+                }
+            }, 1000);
+        }
+
+        async function toggleMute() {
+            try {
+                const response = await fetch('/api/mute', { method:'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    isMuted = data.muted;
+                    updateMuteButton();
+                }
+            } catch (error) {
+                console.error('Error toggling mute:', error);
+            }
+        }
+
+        function updateMuteButton() {
+            const text = document.getElementById('mute-text');
+            text.textContent = isMuted ? 'Sound Off' : 'Sound On';
+        }
+
+        updateStatus();
+    </script>
+</body>
+</html>
