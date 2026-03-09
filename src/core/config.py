@@ -37,7 +37,7 @@ SCORE_INCREMENT_POSE = 3
 SCORE_DECAY = 2           
 
 # --- RASPBERRY PI GPIO CONFIG (BCM MODE) ---
-GPIO_LED_YELLOW = 17  # Pin 11 (Physical)
-GPIO_LED_RED = 27     # Pin 13 (Physical)
-GPIO_BUZZER = 22      # Pin 15 (Physical)
-GPIO_VIBRATION = 23   # Pin 16 (Physical) - Rung (Option)
+GPIO_LED_RED = 17     # Đỏ
+GPIO_LED_GREEN = 27   # Xanh lá (Kết hợp với Đỏ ra Vàng)
+GPIO_LED_BLUE = 22    # Xanh dương
+GPIO_BUZZER = 23      # Còi báo
