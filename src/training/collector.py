@@ -1,9 +1,4 @@
-# --- FIX PROTOBUF ERROR ON PYTHON 3.11+ ---
-import os
-os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
-# ------------------------------------------
-
-import time, cv2, platform
+import time, cv2, platform,os
 import mediapipe as mp
 import numpy as np
 import pandas as pd
@@ -53,7 +48,7 @@ def play_feedback(type : str):
         except ImportError:
             pass
     else:
-        print(f"🔔 {type.upper()}")
+        pass # Khong co am thanh tren Linux
 
 def normalize_landmarks(landmarks):
     points = np.array(landmarks)
@@ -82,7 +77,6 @@ def main():
     
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
-        print(f"khong dung duoc so 0")
         cap = cv2.VideoCapture(1)
         if not cap.isOpened():
             print("Khong mo duoc cam, da thu index [0,1]")
