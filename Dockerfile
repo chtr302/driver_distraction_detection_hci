@@ -27,9 +27,10 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 COPY src ./src
+COPY templates ./templates
 COPY main.py .
 
-EXPOSE 5050
+EXPOSE 5051
 ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 ENV PYTHONUNBUFFERED=1
 
