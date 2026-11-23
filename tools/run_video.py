@@ -18,6 +18,8 @@ CSV columns (one row per processed frame after calibration):
   drowsy      0/1, the model's per-frame decision (no water tank, no alert rule)
   ms_face     time of FaceOnnx on this frame
   ms_model    time of features + 3 GRU models on this frame
+Rows with an empty ema: the GRU is still calibrating (fewer than 360 face frames so far), drowsy is 0 there;
+leave them out of any metric. Videos with no face in the first CALIB_S seconds are skipped (note in summary.json).
 A summary line per video and summary.json are printed/written: frames, face ratio, drowsy ratio, median and p95 ms.
 To compare another model, produce the same per-frame columns (t_s, drowsy, optionally a score) on the same videos.
 """
@@ -87,6 +89,9 @@ def run(path: Path, model_dir: str, color: str, out_dir: Path) -> dict:
             if t_ms / 1000 < calib_s:
                 continue
             found = np.array([c[0] is not None for c in calib])
+            if not found.any():  # no baseline possible: skip this video, keep the batch running
+                face.close()
+                return {"video": path.name, "frames": 0, "note": f"no face in the first {calib_s:.0f} s"}
             if found.mean() < 0.5:
                 print(f"{path.name}: face in only {found.mean():.0%} of calibration frames, results unreliable")
             raw = np.stack([raw_features(c[0][0][None], c[0][1][None], c[0][2][None], w, h)[0]
@@ -133,8 +138,9 @@ def main() -> None:
         s = run(v, a.model, a.color, a.out)
         summary.append(s)
         print(json.dumps(s), flush=True)
+    a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
-    print(f"wrote {len(summary)} CSV + summary.json to {a.out}")
+    print(f"{len(summary)} videos, {sum(1 for s in summary if s['frames'])} with results; summary.json in {a.out}")
 
 
 if __name__ == "__main__":
