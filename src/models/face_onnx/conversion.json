@@ -1,0 +1,18 @@
+{
+  "source": "face_landmarker.task",
+  "source_sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+  "models": {
+    "face_detector": {
+      "sha256": "9b5bba13aa4d020ec1b12839d9b463ca14debe1b6ce9d1b6b66c43826619acb9",
+      "max_abs_diff": 5.91278076171875e-05
+    },
+    "face_landmarks_detector": {
+      "sha256": "e1d9ce12dd2ea968608e0b5e944c019486f98227f5a280cfe05356873b4be3a2",
+      "max_abs_diff": 0.00030517578125
+    },
+    "face_blendshapes": {
+      "sha256": "77194b8a997b89a2d46fdbe2fe954767357df78917d921124890fc890dabf826",
+      "max_abs_diff": 1.0728836059570312e-06
+    }
+  }
+}

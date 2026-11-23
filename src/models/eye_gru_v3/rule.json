@@ -1,0 +1,54 @@
+{
+ "models": [
+  {
+   "file": "eye_gru_v3_m0.onnx",
+   "source_checkpoint": "runs/v3/final/C_s0/final.pt",
+   "seed": 0,
+   "threshold_offset_logit": 2.602696657180786,
+   "t_episode": 1.465006852597785
+  },
+  {
+   "file": "eye_gru_v3_m1.onnx",
+   "source_checkpoint": "runs/v3/final/C_s1/final.pt",
+   "seed": 1,
+   "threshold_offset_logit": 3.0566394329071045,
+   "t_episode": 1.6188526578812938
+  },
+  {
+   "file": "eye_gru_v3_m2.onnx",
+   "source_checkpoint": "runs/v3/final/C_s2/final.pt",
+   "seed": 2,
+   "threshold_offset_logit": 2.8154141902923584,
+   "t_episode": 1.6188526578812938
+  }
+ ],
+ "hidden": 48,
+ "features": [
+  "d_eyeBlinkLeft",
+  "d_eyeBlinkRight",
+  "d_eyeSquintLeft",
+  "d_eyeSquintRight",
+  "d_eyeWideLeft",
+  "d_eyeWideRight",
+  "d_eyeLookDownLeft",
+  "d_eyeLookDownRight",
+  "d_earLeft",
+  "d_earRight",
+  "d_pitch",
+  "d_yaw",
+  "d_roll",
+  "pitch_rate",
+  "face_found"
+ ],
+ "fps": 12,
+ "calib_s": 30.0,
+ "ema_alpha": 0.12,
+ "delta": 2.0,
+ "tank": {
+  "inc": 5,
+  "dec": 2,
+  "warning": 50,
+  "critical": 100
+ },
+ "chosen_by": "tools/tune_operating_point.py on runs/v3 (arm C, 3-seed ensemble), see docs/design/pipeline-gru.md"
+}
